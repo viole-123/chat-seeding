@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uniscore Seeding Bot - Test Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9em;
+            backdrop-filter: blur(10px);
+        }
+
+        .status.connected {
+            background: #10b981;
+        }
+
+        .status.disconnected {
+            background: #ef4444;
+        }
+
+        .summary-bar {
+            max-width: 1600px;
+            margin: 0 auto 16px auto;
+            background: rgba(255, 255, 255, 0.93);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        .summary-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .summary-chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.8em;
+            font-weight: 700;
+            color: #111827;
+            background: #e5e7eb;
+        }
+
+        .summary-chip.live { background: #86efac; }
+        .summary-chip.prematch { background: #fde68a; }
+        .summary-chip.waiting { background: #bfdbfe; }
+
+        .summary-note {
+            font-size: 0.82em;
+            color: #374151;
+        }
+
+        .prematch-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .prematch-item {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.76em;
+            font-weight: 600;
+        }
+
+        .rooms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .room-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            transition: transform 0.3s ease;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .room-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-title {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .room-stats {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f9fafb;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.bot {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message.user {
+            display: flex;
+            gap: 10px;
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .message.user .avatar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .message-content {
+            max-width: 75%;
+        }
+
+        .message-bubble {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 0.75em;
+            color: #6b7280;
+            margin-top: 5px;
+            padding: 0 5px;
+        }
+
+        .message.user .message-time {
+            text-align: right;
+        }
+
+        .persona-tag {
+            display: inline-block;
+            font-size: 0.7em;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+
+        .no-messages {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .room-footer {
+            border-top: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 10px 12px;
+        }
+
+        .composer-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .composer-input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.9em;
+            outline: none;
+        }
+
+        .composer-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.18);
+        }
+
+        .composer-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .composer-note {
+            margin-top: 6px;
+            font-size: 0.72em;
+            color: #6b7280;
+        }
+
+        .source-tag {
+            display: inline-block;
+            font-size: 0.68em;
+            font-weight: 700;
+            border-radius: 10px;
+            padding: 2px 7px;
+            margin-left: 5px;
+        }
+
+        .source-tag.bot {
+            background: rgba(16, 185, 129, 0.2);
+            color: #047857;
+        }
+
+        .source-tag.user {
+            background: rgba(59, 130, 246, 0.18);
+            color: #1d4ed8;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* ===== JSON SENDER PANEL ===== */
+        .sender-panel {
+            max-width: 1600px;
+            margin: 0 auto 24px auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .sender-header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        .sender-header h3 { margin: 0; font-size: 1em; }
+        .sender-toggle { font-size: 1.2em; transition: transform 0.2s; }
+        .sender-toggle.open { transform: rotate(180deg); }
+        .sender-body {
+            padding: 16px 20px;
+            display: none;
+        }
+        .sender-body.open { display: block; }
+        .sample-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .sample-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.82em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.15s;
+        }
+        .sample-btn:hover { transform: scale(1.06); opacity: 0.9; }
+        .sample-btn.prematch  { background: #f59e0b; color: #fff; }
+        .sample-btn.goal      { background: #10b981; color: #fff; }
+        .sample-btn.yellow    { background: #f59e0b; color: #fff; }
+        .sample-btn.red       { background: #ef4444; color: #fff; }
+        .sample-btn.multi     { background: #8b5cf6; color: #fff; }
+        .json-textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82em;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px;
+            resize: vertical;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .json-textarea:focus { border-color: #667eea; }
+        .sender-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .btn-send {
+            padding: 9px 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-send:hover { opacity: 0.9; transform: scale(1.03); }
+        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-clear {
+            padding: 9px 18px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        .btn-clear:hover { background: #e5e7eb; }
+        .send-status {
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+        .send-status.ok  { background: #d1fae5; color: #065f46; display: inline-block; }
+        .send-status.err { background: #fee2e2; color: #991b1b; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚽ Uniscore Seeding Bot</h1>
+        <div class="status disconnected" id="wsStatus">🔴 Disconnected</div>
+    </div>
+
+    <div class="summary-bar">
+        <div class="summary-row" id="summaryChips"></div>
+        <div class="summary-note" id="summaryNote">Loading summary...</div>
+        <div class="prematch-list" id="prematchList"></div>
+    </div>
+
+   
+
+    <div class="rooms-container" id="roomsContainer">
+        <!-- Rooms will be generated here -->
+    </div>
+
+    <script>
+        function resolveWebSocketURL() {
+            const params = new URLSearchParams(window.location.search);
+            const wsOverride = params.get('ws');
+            if (wsOverride) {
+                return wsOverride;
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const currentPort = window.location.port;
+            const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+
+            if (isLocalHost && currentPort !== '8081') {
+                // Local dev fallback: static files on any non-8081 port (e.g. 3000), ws server is always on :8081.
+                return `${protocol}//localhost:8081/ws`;
+            }
+
+            // Default to same-origin websocket endpoint (works when web is served from Go server/ngrok :8081).
+            return `${protocol}//${window.location.host}/ws`;
+        }
+
+        function resolveAPIBaseURL() {
+            const params = new URLSearchParams(window.location.search);
+            const apiOverride = params.get('api');
+            if (apiOverride) {
+                return apiOverride.replace(/\/$/, '');
+            }
+
+            const protocol = window.location.protocol;
+            const currentPort = window.location.port;
+            const isLocalHost = ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+
+            if (isLocalHost && currentPort !== '8081') {
+                return `${protocol}//localhost:8081`;
+            }
+
+            return `${protocol}//${window.location.host}`;
+        }
+
+        const WS_URL = resolveWebSocketURL();
+        const API_BASE_URL = resolveAPIBaseURL();
+        let ws = null;
+        let reconnectInterval = null;
+        let roomsMap = new Map(); // matchID -> room data
+        const seenMessageIds = new Set(); // dedup: track received message IDs
+
+        function rememberMessageId(msgId) {
+            if (!msgId) return true;
+            if (seenMessageIds.has(msgId)) {
+                return false;
+            }
+            seenMessageIds.add(msgId);
+            if (seenMessageIds.size > 5000) {
+                const firstKey = seenMessageIds.values().next().value;
+                seenMessageIds.delete(firstKey);
+            }
+            return true;
+        }
+
+        function buildRequestHeaders(extra = {}) {
+            // Helps bypass ngrok free interstitial for XHR/fetch requests.
+            return {
+                'ngrok-skip-browser-warning': '1',
+                ...extra,
+            };
+        }
+
+        // Initialize empty - rooms will be created dynamically
+        function initRooms() {
+            loadActiveMatches();
+            setInterval(loadActiveMatches, 60000); // sync room list mỗi 60s
+            console.log('✅ Dashboard ready - waiting for messages...');
+        }
+
+        async function loadActiveMatches() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/matches/active?include_waiting=false`, {
+                    headers: buildRequestHeaders(),
+                });
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const payload = await res.json();
+                const matches = Array.isArray(payload.matches) ? payload.matches : [];
+                const activeMatchIDs = new Set();
+
+                updateSummary(payload, matches);
+
+                for (const m of matches) {
+                    if (m.phase === 'waiting'){
+                        continue;
+                    }
+                    activeMatchIDs.add(m.match_id);
+                    const eventType = m.phase === 'live' ? 'LIVE' : (m.phase === 'prematch' ? 'PREMATCH' : 'WAITING');
+                    ensureRoom(m.match_id, m.room_id || `room-${m.match_id}`, eventType, {
+                        homeTeam: m.home_team,
+                        awayTeam: m.away_team,
+                        leagueName: m.league_name,
+                    });
+                }
+
+                pruneInactiveRooms(activeMatchIDs);
+            } catch (error) {
+                console.warn('⚠️ Cannot load active matches:', error.message);
+            }
+        }
+
+        function pruneInactiveRooms(activeMatchIDs) {
+            for (const [matchID, room] of roomsMap.entries()) {
+                if (activeMatchIDs.has(matchID)) {
+                    continue;
+                }
+                const card = document.getElementById(room.roomID);
+                if (card) {
+                    card.remove();
+                }
+                roomsMap.delete(matchID);
+            }
+        }
+
+        // Create or get room dynamically
+        function ensureRoom(matchID, roomID, eventType, meta = {}) {
+            if (roomsMap.has(matchID)) {
+                const existingRoom = roomsMap.get(matchID);
+                existingRoom.homeTeam = meta.homeTeam || existingRoom.homeTeam;
+                existingRoom.awayTeam = meta.awayTeam || existingRoom.awayTeam;
+                existingRoom.leagueName = meta.leagueName || existingRoom.leagueName;
+                if (eventType === 'PREMATCH') {
+                    existingRoom.isPrematch = true;
+                    existingRoom.status = 'prematch';
+                } else if (eventType === 'WAITING') {
+                    existingRoom.isPrematch = false;
+                    existingRoom.status = 'waiting';
+                } else {
+                    existingRoom.isPrematch = false;
+                    existingRoom.status = 'live';
+                }
+                refreshRoomHeader(existingRoom);
+                return existingRoom;
+            }
+
+            const container = document.getElementById('roomsContainer');
+            const isPrematch = eventType === 'PREMATCH';
+            
+            const room = {
+                matchID: matchID,
+                roomID: roomID,
+                isPrematch: isPrematch,
+                status: eventType === 'WAITING' ? 'waiting' : (isPrematch ? 'prematch' : 'live'),
+                historyLoaded: false,
+                messageCount: 0,
+                homeTeam: meta.homeTeam || '',
+                awayTeam: meta.awayTeam || '',
+                leagueName: meta.leagueName || ''
+            };
+
+            const card = createRoomCard(room);
+            container.appendChild(card);
+            roomsMap.set(matchID, room);
+
+            loadRoomHistory(room);
+            
+            return room;
+        }
+
+        async function loadRoomHistory(room) {
+            if (!room || room.historyLoaded) {
+                return;
+            }
+
+            room.historyLoaded = true;
+            try {
+                const res = await fetch(`${API_BASE_URL}/messages/history?match_id=${encodeURIComponent(room.matchID)}&limit=80`, {
+                    headers: buildRequestHeaders(),
+                });
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
+                }
+
+                const payload = await res.json();
+                const messages = Array.isArray(payload.messages) ? payload.messages : [];
+
+                for (const msg of messages) {
+                    if (!rememberMessageId(msg.id)) {
+                        continue;
+                    }
+
+                    addMessage(room.roomID, {
+                        content: msg.content || '',
+                        isBot: resolveIsBot(msg.is_bot ?? msg.isBot),
+                        timestamp: msg.timestamp || Math.floor(Date.now() / 1000),
+                        persona: msg.persona || msg.personaId,
+                        eventType: msg.event_type || msg.eventType,
+                        userID: msg.user_id || msg.userId,
+                    }, { skipTyping: true });
+                }
+            } catch (error) {
+                room.historyLoaded = false;
+                console.warn(`⚠️ Cannot load history for match ${room.matchID}:`, error.message);
+            }
+        }
+
+        function buildStatusBadge(room) {
+            if (room.status === 'waiting') {
+                return '<span style="background: #3b82f6; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 10px;">🕒 UPCOMING</span>';
+            }
+            if (room.isPrematch) {
+                return '<span style="background: #fbbf24; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 10px;">⏰ PREMATCH</span>';
+            }
+            return '<span style="background: #10b981; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; margin-left: 10px;">🔴 LIVE</span>';
+        }
+
+        function refreshRoomHeader(room) {
+            const card = document.getElementById(room.roomID);
+            if (!card) return;
+
+            const header = card.querySelector('.room-header .room-title');
+            if (header) {
+                header.innerHTML = `Match: ${room.matchID} ${buildStatusBadge(room)}`;
+            }
+
+            const teamsText = room.homeTeam && room.awayTeam ? `${room.homeTeam} vs ${room.awayTeam}` : 'Waiting teams...';
+            const leagueText = room.leagueName || 'Unknown league';
+            const teamsEl = document.getElementById(`${room.roomID}-teams`);
+            const leagueEl = document.getElementById(`${room.roomID}-league`);
+            if (teamsEl) teamsEl.textContent = teamsText;
+            if (leagueEl) leagueEl.textContent = `${leagueText} | Room: ${room.roomID}`;
+        }
+
+        function updateSummary(payload, matches) {
+            const chips = document.getElementById('summaryChips');
+            const note = document.getElementById('summaryNote');
+            const prematchList = document.getElementById('prematchList');
+            if (!chips || !note || !prematchList) return;
+
+            const summary = payload.summary || {};
+            const live = Number(summary.live || 0);
+            const prematch = Number(summary.prematch || 0);
+            // const waiting = Number(summary.waiting || 0);
+            const total = Number(payload.count || matches.length || 0);
+
+            chips.innerHTML = [
+                `<span class="summary-chip">TOTAL: ${total}</span>`,
+                `<span class="summary-chip live">LIVE: ${live}</span>`,
+                `<span class="summary-chip prematch">PREMATCH: ${prematch}</span>`,
+                // `<span class="summary-chip waiting">WAITING: ${waiting}</span>`,
+                `<span class="summary-chip">ROOMS ON SCREEN: ${roomsMap.size}</span>`
+            ].join('');
+
+            note.textContent = `Refreshed at ${new Date().toLocaleTimeString('vi-VN')} from /matches/active`;
+
+            const prematchIDs = matches
+                .filter(m => m.phase === 'prematch')
+                .map(m => m.match_id)
+                .slice(0, 12);
+            prematchList.innerHTML = prematchIDs.length > 0
+                ? prematchIDs.map(id => `<span class="prematch-item">${id}</span>`).join('')
+                : '<span class="summary-note">Khong co tran prematch nao trong danh sach active.</span>';
+        }
+
+        function createRoomCard(room) {
+            const card = document.createElement('div');
+            card.className = 'room-card';
+            card.id = room.roomID;
+
+            const statusBadge = buildStatusBadge(room);
+            const teamsText = room.homeTeam && room.awayTeam ? `${room.homeTeam} vs ${room.awayTeam}` : 'Waiting teams...';
+            const leagueText = room.leagueName || 'Unknown league';
+            
+            card.innerHTML = `
+                <div class="room-header">
+                    <div>
+                        <div class="room-title">
+                            Match: ${room.matchID}
+                            ${statusBadge}
+                        </div>
+                        <div class="room-stats" id="${room.roomID}-teams" style="font-size: 0.8em; margin-top: 3px;">${teamsText}</div>
+                        <div class="room-stats" id="${room.roomID}-league" style="font-size: 0.75em; margin-top: 2px;">${leagueText} | Room: ${room.roomID}</div>
+                    </div>
+                    <div class="room-stats">
+                        <span id="${room.roomID}-count">0</span> msg
+                    </div>
+                </div>
+                <div class="messages" id="${room.roomID}-messages">
+                    <div class="no-messages">Waiting for messages...</div>
+                </div>
+                <div class="typing-indicator" id="${room.roomID}-typing">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <div class="room-footer">
+                    <div class="composer-row">
+                        <input id="${room.roomID}-input" class="composer-input" type="text" placeholder="Nhap tin nhan user cho room nay..." />
+                        <button class="composer-btn" id="${room.roomID}-send" type="button">Gui</button>
+                    </div>
+                    <div class="composer-note">Tin nhan se gui qua WS va dong bo realtime cho client khac.</div>
+                </div>
+            `;
+
+            const sendBtn = card.querySelector(`#${room.roomID}-send`);
+            const input = card.querySelector(`#${room.roomID}-input`);
+            if (sendBtn && input) {
+                sendBtn.addEventListener('click', () => submitRoomMessage(room, input));
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitRoomMessage(room, input);
+                    }
+                });
+            }
+
+            return card;
+        }
+
+        function submitRoomMessage(room, inputEl) {
+            if (!room || !inputEl) return;
+
+            const content = inputEl.value.trim();
+            if (!content) return;
+
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert('WebSocket chua ket noi, khong gui duoc tin nhan.');
+                return;
+            }
+
+            ws.send(JSON.stringify({
+                match_id: room.matchID,
+                room_id: room.roomID,
+                content,
+            }));
+
+            inputEl.value = '';
+        }
+
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function resolveIsBot(raw) {
+            if (typeof raw === 'boolean') return raw;
+            return raw !== false;
+        }
+
+        function addMessage(roomID, message, options = {}) {
+            const messagesDiv = document.getElementById(`${roomID}-messages`);
+            if (!messagesDiv) {
+                console.warn(`Room ${roomID} not found`);
+                return;
+            }
+
+            const skipTyping = options.skipTyping === true;
+            
+            // Remove "no messages" placeholder
+            const noMessages = messagesDiv.querySelector('.no-messages');
+            if (noMessages) {
+                noMessages.remove();
+            }
+
+            const renderMessage = () => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${message.isBot ? 'bot' : 'user'}`;
+                
+                const time = new Date(message.timestamp * 1000).toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const safeContent = escapeHTML(message.content || '');
+                const safePersona = escapeHTML(message.persona || '');
+                const safeEventType = escapeHTML(message.eventType || '');
+                const safeUserID = escapeHTML(message.userID || '');
+
+                const personaTag = safePersona ? `<span class="persona-tag">${safePersona}</span>` : '';
+                const eventTag = safeEventType ? `<span class="persona-tag" style="background: rgba(251, 191, 36, 0.2); color: #f59e0b;">${safeEventType}</span>` : '';
+                const sourceTag = message.isBot
+                    ? '<span class="source-tag bot">BOT</span>'
+                    : '<span class="source-tag user">USER</span>';
+                const userTag = !message.isBot && safeUserID ? `<span class="persona-tag">${safeUserID}</span>` : '';
+
+                messageDiv.innerHTML = `
+                    <div class="avatar">${message.isBot ? '🤖' : '👤'}</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ${safeContent}
+                            ${sourceTag}
+                            ${eventTag}
+                            ${personaTag}
+                            ${userTag}
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+
+                messagesDiv.appendChild(messageDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                // Update message count
+                const countSpan = document.getElementById(`${roomID}-count`);
+                if (countSpan) {
+                    const currentCount = parseInt(countSpan.textContent) || 0;
+                    countSpan.textContent = currentCount + 1;
+                }
+            };
+
+            if (skipTyping) {
+                renderMessage();
+                return;
+            }
+
+            // Show typing indicator first
+            showTyping(roomID);
+            setTimeout(renderMessage, 800); // Delay to show typing indicator
+        }
+
+        function showTyping(roomID) {
+            const typingDiv = document.getElementById(`${roomID}-typing`);
+            if (typingDiv) {
+                typingDiv.classList.add('active');
+                setTimeout(() => {
+                    typingDiv.classList.remove('active');
+                }, 800);
+            }
+        }
+
+        function isPrematchEventType(eventType) {
+            const normalized = String(eventType || '').toUpperCase();
+            return normalized === 'PREMATCH' || normalized === 'MATCH_UPCOMING';
+        }
+
+        // Update room status from prematch to live
+        function updateRoomStatus(matchID, eventType) {
+            const room = roomsMap.get(matchID);
+            if (!room) return;
+
+            // Keep prematch room in prematch for prematch-specific events.
+            if (isPrematchEventType(eventType)) {
+                room.isPrematch = true;
+                room.status = 'prematch';
+                refreshRoomHeader(room);
+                return;
+            }
+
+            // Auto switch to LIVE for in-play events.
+            if (eventType !== 'WAITING') {
+                room.isPrematch = false;
+                room.status = 'live';
+                refreshRoomHeader(room);
+
+                const card = document.getElementById(room.roomID);
+                if (card) {
+                    card.style.border = '3px solid #10b981';
+                    setTimeout(() => {
+                        card.style.border = 'none';
+                    }, 1500);
+                }
+            }
+        }
+
+        function connectWebSocket() {
+            console.log('🔌 Connecting to WebSocket...');
+            console.log('🌐 WS URL:', WS_URL);
+            // Close existing connection before creating a new one to prevent duplicate connections
+            if (ws && ws.readyState !== WebSocket.CLOSED) {
+                ws.onclose = null; // Prevent reconnect loop from firing on intentional close
+                ws.close();
+            }
+            ws = new WebSocket(WS_URL);
+
+            ws.onopen = () => {
+                console.log('✅ WebSocket connected');
+                const status = document.getElementById('wsStatus');
+                status.textContent = '🟢 Connected';
+                status.className = 'status connected';
+                
+                if (reconnectInterval) {
+                    clearInterval(reconnectInterval);
+                    reconnectInterval = null;
+                }
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    // Deduplicate by message ID to prevent showing the same message twice
+                    const msgId = data.id;
+                    if (!rememberMessageId(msgId)) {
+                        console.log('⏭️ Duplicate message skipped:', msgId);
+                        return;
+                    }
+
+                    console.log('📨 Received:', data);
+
+                    // Extract room info from message
+                    const matchID = data.match_id || data.matchId || 'unknown';
+                    const roomID = data.room_id || data.roomId || `room-${matchID}`;
+                    const eventType = data.event_type || data.eventType || 'LIVE';
+
+                    // Ensure room exists
+                    const room = ensureRoom(matchID, roomID, eventType);
+
+                    // Update room status if changed from prematch to live
+                    updateRoomStatus(matchID, eventType);
+
+                    // Add message to room
+                    addMessage(room.roomID, {
+                        content: data.content || data.message || data.text,
+                        isBot: resolveIsBot(data.is_bot ?? data.isBot),
+                        timestamp: data.timestamp || Math.floor(Date.now() / 1000),
+                        persona: data.persona || data.personaId,
+                        eventType: eventType,
+                        userID: data.user_id || data.userId,
+                    });
+                } catch (error) {
+                    console.error('❌ Parse error:', error, event.data);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('❌ WebSocket error:', error);
+            };
+
+            ws.onclose = () => {
+                console.log('🔴 WebSocket disconnected');
+                const status = document.getElementById('wsStatus');
+                status.textContent = '🔴 Disconnected - Retrying...';
+                status.className = 'status disconnected';
+
+                // Reconnect after 5 minute
+                if (!reconnectInterval) {
+                    reconnectInterval = setInterval(() => {
+                        console.log('🔄 Reconnecting...');
+                        connectWebSocket();
+                    }, 300000);
+                }
+            };
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            initRooms();
+            connectWebSocket();
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ws) {
+                ws.close();
+            }
+            if (reconnectInterval) {
+                clearInterval(reconnectInterval);
+            }
+        });
+
+        // ===== JSON SENDER PANEL =====
+        const SAMPLES = {
+            prematch: {
+                code: 0,
+                results: [
+                    { id: "demo-p1", score: [], stats: [], incidents: [], tlive: [] },
+                    { id: "demo-p2", score: [], stats: [], incidents: [], tlive: [] }
+                ]
+            },
+            goal: {
+                code: 0,
+                results: [{
+                    id: "demo-live-1",
+                    score: [null, 1, 1, 0],
+                    stats: [],
+                    incidents: [{
+                        type: 1, position: 1, time: 23,
+                        player_name: "Ronaldo",
+                        home_score: 1, away_score: 0
+                    }],
+                    tlive: [{ time: "23:00", data: {} }]
+                }]
+            },
+            yellow: {
+                code: 0,
+                results: [{
+                    id: "demo-live-2",
+                    score: [null, 0, 0, 0],
+                    stats: [],
+                    incidents: [{
+                        type: 3, position: 2, time: 34,
+                        player_name: "Modric"
+                    }],
+                    tlive: [{ time: "34:00", data: {} }]
+                }]
+            },
+            red: {
+                code: 0,
+                results: [{
+                    id: "demo-live-3",
+                    score: [null, 0, 0, 1],
+                    stats: [],
+                    incidents: [{
+                        type: 4, position: 1, time: 67,
+                        player_name: "Messi", reason_type: 1
+                    }],
+                    tlive: [{ time: "67:00", data: {} }]
+                }]
+            },
+            multi: {
+                code: 0,
+                results: [
+                    {
+                        id: "multi-live-A",
+                        score: [null, 1, 2, 1],
+                        stats: [],
+                        incidents: [
+                            { type: 1, position: 1, time: 15, player_name: "Salah",   home_score: 1, away_score: 0 },
+                            { type: 1, position: 2, time: 42, player_name: "Kane",    home_score: 1, away_score: 1 },
+                            { type: 3, position: 2, time: 55, player_name: "Pogba" }
+                        ],
+                        tlive: [{ time: "55:00", data: {} }]
+                    },
+                    {
+                        id: "multi-live-B",
+                        score: [null, 0, 0, 0],
+                        stats: [],
+                        incidents: [
+                            { type: 4, position: 2, time: 60, player_name: "Gattuso", reason_type: 1 }
+                        ],
+                        tlive: [{ time: "60:00", data: {} }]
+                    },
+                    { id: "multi-pre-C", score: [], stats: [], incidents: [], tlive: [] },
+                    { id: "multi-pre-D", score: [], stats: [], incidents: [], tlive: [] }
+                ]
+            }
+        };
+
+        function toggleSender() {
+            const body   = document.getElementById('senderBody');
+            const toggle = document.getElementById('senderToggle');
+            body.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        function loadSample(key) {
+            document.getElementById('jsonInput').value = JSON.stringify(SAMPLES[key], null, 2);
+            document.getElementById('sendStatus').className = 'send-status';
+        }
+
+        async function sendEvent() {
+            const raw    = document.getElementById('jsonInput').value.trim();
+            const status = document.getElementById('sendStatus');
+            const btn    = document.getElementById('btnSend');
+
+            if (!raw) { alert('Vui lòng nhập JSON trước!'); return; }
+
+            let parsed;
+            try { parsed = JSON.parse(raw); }
+            catch (e) {
+                status.textContent = '❌ JSON không hợp lệ: ' + e.message;
+                status.className = 'send-status err';
+                return;
+            }
+
+            btn.disabled = true;
+            status.textContent = '⏳ Đang gửi...';
+            status.className = 'send-status ok';
+
+            try {
+                const res = await fetch('/send-event', {
+                    method: 'POST',
+                    headers: buildRequestHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify(parsed)
+                });
+                const json = await res.json();
+                if (res.ok) {
+                    status.textContent = `✅ Gửi thành công! offset=${json.offset} (${json.bytes} bytes)`;
+                    status.className = 'send-status ok';
+                } else {
+                    status.textContent = '❌ Lỗi: ' + (json.error || res.statusText);
+                    status.className = 'send-status err';
+                }
+            } catch (e) {
+                status.textContent = '❌ Network error: ' + e.message;
+                status.className = 'send-status err';
+            } finally {
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

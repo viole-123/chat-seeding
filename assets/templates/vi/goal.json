@@ -1,0 +1,13 @@
+{
+  "id": "tpl_goal_001",
+  "event_type": "GOAL",
+  "lang": "vi",
+  "persona_id": "enthusiast", 
+  "conditions": {
+    "minute_range": [85, 90],
+    "score_diff": [7, 8]
+  },
+  "text": "⚽ CHÁY QUÁ ANH EM ƠI! {{player}} ghi bàn phút {{time}} định đoạt trận đấu rồi! 🔥",
+  "priority": 1,
+  "enabled": true
+}

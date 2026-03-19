@@ -1,0 +1,4 @@
+{
+  "id": "goal",
+  "text": "⚽ GOAL! {{player}} scores at {{time}}!"
+}

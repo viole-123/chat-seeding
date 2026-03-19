@@ -1,0 +1,43 @@
+service_name: uniscore-seeding-bot
+
+kafka:
+  brokers:
+    - kafka:9092
+  topic: seeding-events
+  username: ""
+  password: ""
+  retries: 3
+  producer_return_success: true
+
+redis:
+  addr: redis:6379
+  password: ""
+  db: 0
+
+database:
+  url: "postgres://postgres:postgres@postgres:5432/uniscore_seeding?sslmode=disable"
+  
+
+
+vllm:
+  api_url: "http://host.docker.internal:11434"
+  model: "gpt-oss:120b-cloud"
+  timeout: 90s
+
+seeding_policy:
+  max_messages_bot: 100
+  bot_ratio: 0.3
+  cooldown: 60s
+  max_events_per_hour: 1000
+  dedup_window: 24h
+  enable_kill_switch: true
+
+quality:
+  min_length: 10
+  max_length: 200
+  banned_words: ["fuck", "shit", "damn"]
+  dedup_ttl: 300
+
+log:
+  rotation_size: 100
+  rotation_count: 5

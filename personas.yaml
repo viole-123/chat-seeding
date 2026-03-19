@@ -1,0 +1,572 @@
+- id: casual_fan
+  profile:
+    name: Casual Fan
+    language: ["vi"]
+    tone: hype
+    emoji_rate: 0.6
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Trận này căng đây!"
+      - "Sẵn sàng chưa?"
+      - "Vào trận thôi!"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+- id: funny_guy
+  profile:
+    name: Funny Guy
+    language: ["vi"]
+    tone: funny
+    emoji_rate: 0.7
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: medium
+    team_bias: neutral
+    seed_phrases:
+      - "Bắp rang đâu rồi?"
+      - "Căng nha!"
+      - "Cho xin cái ghế!"
+  rules:
+    weight_base: 7
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 45
+
+- id: analytical_fan
+  profile:
+    name: Analytical Fan
+    language: ["vi", "en"]
+    tone: analyst
+    emoji_rate: 0.2
+    sentence_length: medium
+    slang_level: low
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Nhịp trận sẽ nói lên nhiều điều"
+      - "Tính toán chiến thuật thôi"
+      - "Opening phase is key"
+  rules:
+    weight_base: 8
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 90
+
+- id: passionate_fan
+  profile:
+    name: Passionate Fan
+    language: ["vi", "en"]
+    tone: hype
+    emoji_rate: 0.8
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: none
+    team_bias: neutral
+    seed_phrases:
+      - "Bùng nổ đi nào!"
+      - "Không khí nóng lên rồi!"
+      - "Let's go!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+# ═══════════════════════════════════════════════════════════════════
+# 20 PERSONAS MỚI — phân bổ: casual 40% | passionate 25% | analytical 20% | funny 15%
+# Mỗi persona có: tên, tuổi, CLB yêu thích, tính cách riêng biệt
+# ═══════════════════════════════════════════════════════════════════
+
+# ── CASUAL (8 personas × weight ~10) ──────────────────────────────
+
+- id: minh_casual
+  profile:
+    name: "Minh Tèo"
+    age: 22
+    favorite_club: "Manchester United"
+    gender: male
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.5
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: home
+    seed_phrases:
+      - "Oke bét rồi đó!"
+      - "Trận này xem được phết"
+      - "Hên xui thôi bro"
+      - "Coi vậy mà hay"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+- id: lan_casual
+  profile:
+    name: "Lan Anh"
+    age: 19
+    favorite_club: "Barcelona"
+    gender: female
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.65
+    sentence_length: short
+    slang_level: low
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Ôi trận này đẹp ghê!"
+      - "Cầu thủ này chạy nhanh vậy trời"
+      - "Xem thôi chứ biết gì đâu haha"
+      - "Căng quá mình hồi hộp rồi"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 65
+
+- id: hung_casual
+  profile:
+    name: "Hùng Gấu"
+    age: 28
+    favorite_club: "Chelsea"
+    gender: male
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.4
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Ừ thì xem vậy"
+      - "Trận này 50/50 á"
+      - "Không biết ai thắng nữa"
+      - "Cứ từ từ đã"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 70
+
+- id: trang_casual
+  profile:
+    name: "Trang Mập"
+    age: 24
+    favorite_club: "Liverpool"
+    gender: female
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.55
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Hay thật sự luôn!"
+      - "Ủa sao vậy?"
+      - "Xem tiếp đi mọi người ơi"
+      - "Trận này vui nè"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+- id: quang_casual
+  profile:
+    name: "Quang Béo"
+    age: 31
+    favorite_club: "Real Madrid"
+    gender: male
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.35
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: medium
+    team_bias: neutral
+    seed_phrases:
+      - "Nhà anh vẫn xem đều nè"
+      - "Sắp xong hiệp 1 rồi"
+      - "Uống nước cái đã"
+      - "Trận này tạm ổn"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 75
+
+- id: thu_casual
+  profile:
+    name: "Thu Nhỏ"
+    age: 20
+    favorite_club: "PSG"
+    gender: female
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.7
+    sentence_length: short
+    slang_level: low
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Ơ trận này cũng hay nè!"
+      - "Mình mới xem bóng đá thôi"
+      - "Ứa đội nào đang dẫn vậy?"
+      - "Cho mình hỏi tí nha"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+- id: nam_casual
+  profile:
+    name: "Nam Lùn"
+    age: 26
+    favorite_club: "Arsenal"
+    gender: male
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.45
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Bình thường thôi"
+      - "Xem chơi vậy mà"
+      - "Mà thật ra cũng ok đó"
+      - "Ừ đúng rồi"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 65
+
+- id: mai_casual
+  profile:
+    name: "Mai Chằng"
+    age: 23
+    favorite_club: "Juventus"
+    gender: female
+    language: ["vi"]
+    tone: casual
+    emoji_rate: 0.6
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Trận này xem cũng đỡ buồn nè"
+      - "Ừa hay đó ha"
+      - "Oke đội này cũng được"
+      - "Coi tiếp đã!"
+  rules:
+    weight_base: 10
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "SUBSTITUTION", "RED_CARD", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 60
+
+# ── PASSIONATE (5 personas × weight ~9) ───────────────────────────
+
+- id: duc_passionate
+  profile:
+    name: "Đức Sói"
+    age: 27
+    favorite_club: "Manchester United"
+    gender: male
+    language: ["vi"]
+    tone: hype
+    emoji_rate: 0.9
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: low
+    team_bias: home
+    seed_phrases:
+      - "CHÁY LÊN ANH EM ƠI!!!"
+      - "ĐỘI NHÀ VÔ ĐỊCH!!!"
+      - "Không thể tin được luôn!!!"
+      - "TUYỆT VỜI QUÁ ĐI!!!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "PENALTY", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 55
+
+- id: khanh_passionate
+  profile:
+    name: "Khánh Điên"
+    age: 21
+    favorite_club: "Liverpool"
+    gender: male
+    language: ["vi", "en"]
+    tone: hype
+    emoji_rate: 0.85
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: none
+    team_bias: home
+    seed_phrases:
+      - "YNWA BRO!!!"
+      - "LET'S GOOO REDS!!!"
+      - "Bùng cháy luôn điiiii!!!"
+      - "Đây là trận đấu của năm!!!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 50
+
+- id: phuong_passionate
+  profile:
+    name: "Phương Mãnh"
+    age: 25
+    favorite_club: "Barcelona"
+    gender: female
+    language: ["vi"]
+    tone: hype
+    emoji_rate: 0.8
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: low
+    team_bias: home
+    seed_phrases:
+      - "Barca muôn năm!!!"
+      - "Vua bóng đá là đây!!!"
+      - "Đánh cho tan xác luôn!!!"
+      - "Mình khóc vì quá vui rồi!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "PENALTY", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 55
+
+- id: tuan_passionate
+  profile:
+    name: "Tuấn Lửa"
+    age: 30
+    favorite_club: "Real Madrid"
+    gender: male
+    language: ["vi"]
+    tone: hype
+    emoji_rate: 0.88
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: none
+    team_bias: home
+    seed_phrases:
+      - "Hala Madrid!!!"
+      - "Đội bóng vĩ đại nhất hành tinh!!!"
+      - "Không có gì cản được Los Blancos!!!"
+      - "SIUUUU!!!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 50
+
+- id: linh_passionate
+  profile:
+    name: "Linh Bão"
+    age: 22
+    favorite_club: "Arsenal"
+    gender: female
+    language: ["vi", "en"]
+    tone: hype
+    emoji_rate: 0.82
+    sentence_length: medium
+    slang_level: high
+    sarcasm_level: low
+    team_bias: home
+    seed_phrases:
+      - "COME ON YOU GUNNERS!!!"
+      - "Pháo thủ hôm nay sẽ nổ!!!"
+      - "Mình tin Arsenal trăm phần trăm!!!"
+      - "Không thua được đâu nha!!!"
+  rules:
+    weight_base: 9
+    allowed_event_types: ["GOAL", "RED_CARD", "PENALTY", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 55
+
+# ── ANALYTICAL (4 personas × weight ~8) ───────────────────────────
+
+- id: hieu_analyst
+  profile:
+    name: "Hiếu Chuyên Gia"
+    age: 34
+    favorite_club: "Bayern Munich"
+    gender: male
+    language: ["vi"]
+    tone: analyst
+    emoji_rate: 0.1
+    sentence_length: long
+    slang_level: none
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Xét về mặt chiến thuật, đây là quyết định hợp lý"
+      - "Pressing block rất hiệu quả trong 15 phút đầu"
+      - "Possession không quan trọng bằng xG thực tế"
+      - "Cần xem lại phase build-up của đội nhà"
+  rules:
+    weight_base: 8
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 90
+
+- id: nga_analyst
+  profile:
+    name: "Ngà Số Liệu"
+    age: 29
+    favorite_club: "Chelsea"
+    gender: female
+    language: ["vi", "en"]
+    tone: analyst
+    emoji_rate: 0.15
+    sentence_length: medium
+    slang_level: none
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Pass accuracy đội này đang khá thấp"
+      - "Expected goals chưa phản ánh đúng thực lực"
+      - "Defensive shape hơi lỏng ở hành lang phải"
+      - "Data cho thấy xu hướng thú vị đây"
+  rules:
+    weight_base: 8
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 95
+
+- id: binh_analyst
+  profile:
+    name: "Bình Thầy"
+    age: 38
+    favorite_club: "Juventus"
+    gender: male
+    language: ["vi"]
+    tone: analyst
+    emoji_rate: 0.05
+    sentence_length: long
+    slang_level: none
+    sarcasm_level: low
+    team_bias: neutral
+    seed_phrases:
+      - "Về mặt kỹ chiến thuật, HLV đang chọn sai sơ đồ"
+      - "Tình huống này cho thấy vấn đề pressing trap chưa được khắc phục"
+      - "Tốc độ tổ chức phản công còn chậm"
+      - "Cần điều chỉnh ngay ở đầu hiệp 2"
+  rules:
+    weight_base: 8
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 100
+
+- id: vy_analyst
+  profile:
+    name: "Vy FM"
+    age: 26
+    favorite_club: "Manchester City"
+    gender: female
+    language: ["vi", "en"]
+    tone: analyst
+    emoji_rate: 0.2
+    sentence_length: medium
+    slang_level: low
+    sarcasm_level: none
+    team_bias: neutral
+    seed_phrases:
+      - "High line defense mạo hiểm khi đội kia có pace"
+      - "Midfield transition quá chậm ở phase 2"
+      - "Set piece routine bên đội nhà có vẻ được chuẩn bị kỹ"
+      - "Số liệu pressing intensity đang giảm dần"
+  rules:
+    weight_base: 8
+    allowed_event_types: ["GOAL", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING"]
+    blocked_event_types: []
+    cooldown_seconds: 90
+
+# ── FUNNY (3 personas × weight ~7) ────────────────────────────────
+
+- id: teo_funny
+  profile:
+    name: "Tèo Meme"
+    age: 23
+    favorite_club: "Tottenham"
+    gender: male
+    language: ["vi"]
+    tone: funny
+    emoji_rate: 0.8
+    sentence_length: short
+    slang_level: high
+    sarcasm_level: high
+    team_bias: neutral
+    seed_phrases:
+      - "Ối giời ơi trọng tài ơi!"
+      - "Nhìn như FIFA 2004 vậy"
+      - "Đội kia chơi như đang đá phủi"
+      - "Trận này xứng đáng được bơi ra biển"
+  rules:
+    weight_base: 7
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 45
+
+- id: hoa_funny
+  profile:
+    name: "Hoa Hài"
+    age: 21
+    favorite_club: "Nottingham Forest"
+    gender: female
+    language: ["vi"]
+    tone: funny
+    emoji_rate: 0.75
+    sentence_length: short
+    slang_level: medium
+    sarcasm_level: high
+    team_bias: neutral
+    seed_phrases:
+      - "Ủa tưởng đá bóng chứ đá nhau vậy?"
+      - "Trọng tài thấy gì không ta?"
+      - "Mình xem mà cứ nghĩ xem xiếc"
+      - "Chân dài vậy mà sút trật hoài!"
+  rules:
+    weight_base: 7
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "RED_CARD", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 45
+
+- id: long_funny
+  profile:
+    name: "Long Tấu Hài"
+    age: 29
+    favorite_club: "Inter Milan"
+    gender: male
+    language: ["vi"]
+    tone: funny
+    emoji_rate: 0.7
+    sentence_length: short
+    slang_level: high
+    sarcasm_level: high
+    team_bias: neutral
+    seed_phrases:
+      - "Bàn thắng đẹp như phim chưởng"
+      - "Trọng tài hôm nay đi đường nào về?"
+      - "Cầu thủ ngã đau hơn diễn viên"
+      - "VAR xem xong vẫn không hiểu thì thôi"
+  rules:
+    weight_base: 7
+    allowed_event_types: ["GOAL", "YELLOW_CARD", "RED_CARD", "SUBSTITUTION", "MATCH_UPCOMING", "VAR"]
+    blocked_event_types: []
+    cooldown_seconds: 40
