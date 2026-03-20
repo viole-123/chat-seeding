@@ -22,4 +22,6 @@ type ContextStore interface {
 	PushEvent(matchID string, event model.MatchEvent) error
 	PushChatMessage(roomID string, msg model.ChatMessage) error
 	MarkSentPrematch(ctx context.Context, matchID string) error
+
+	GetBotCount(ctx context.Context, roomID string) (int64, error)
 }

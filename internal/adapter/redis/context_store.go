@@ -365,3 +365,15 @@ func (s *ContextStoreServiceImpl) MarkSentPrematch(ctx context.Context, matchID 
 	key := fmt.Sprintf("bot:prematch:sent:%s", matchID)
 	return s.redisClient.redis.Set(ctx, key, "1", 2*time.Hour).Err()
 }
+
+func (s *ContextStoreServiceImpl) GetBotCount(ctx context.Context, roomID string) (int64, error) {
+	key := fmt.Sprintf("room:online:%s", roomID)
+	count, err := s.redisClient.redis.SCard(ctx, key).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("redis SCARD %s: %w", key, err)
+	}
+	return count, nil
+}

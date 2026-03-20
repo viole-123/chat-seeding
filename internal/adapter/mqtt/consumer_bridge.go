@@ -33,8 +33,6 @@ func NewConsumerBridge(brokerURL, clientID string, route func(roomID string, pay
 	return &ConsumerBridge{mqttClient: client, route: route}, nil
 }
 
-// Start — subscribe "room/+" để nhận TẤT CẢ message từ mọi room
-// Wildcard "+" nghĩa là: room/match001, room/match002... đều nhận được
 func (b *ConsumerBridge) Start(ctx context.Context) error {
 	// "room/+" là MQTT single-level wildcard
 	token := b.mqttClient.Subscribe("room/+", 1, b.handleMessage)

@@ -31,11 +31,12 @@ type EventHandler struct {
 	roomManager      *RoomManager
 	redisAuth        service.DedupService
 	messageRepo      domainrepo.MessageRepository
+	autoScaler       *AutoScalerLogic
 	shadowBanService *safety.ShadowBanService
 }
 
 // Init event handler with dependencies
-func NewEventHandler(policyChecker PolicyChecker, personaSelector *PersonaSelector, contextBuilder *ContextBuilder, contextStore service.ContextStore, messageGenerator *MessageGenerator, qualityFilter *QualityFilter, logger *log.Logger, publisher service.PublisherService, mqttPublisher *mqtt.Publisher, roomManager *RoomManager, redisAuth service.DedupService, messageRepo domainrepo.MessageRepository) *EventHandler {
+func NewEventHandler(policyChecker PolicyChecker, personaSelector *PersonaSelector, contextBuilder *ContextBuilder, contextStore service.ContextStore, messageGenerator *MessageGenerator, qualityFilter *QualityFilter, logger *log.Logger, publisher service.PublisherService, mqttPublisher *mqtt.Publisher, roomManager *RoomManager, redisAuth service.DedupService, messageRepo domainrepo.MessageRepository, autoScaler *AutoScalerLogic) *EventHandler {
 	return &EventHandler{
 		policyChecker:    policyChecker,
 		personaSelector:  personaSelector,
@@ -49,6 +50,7 @@ func NewEventHandler(policyChecker PolicyChecker, personaSelector *PersonaSelect
 		roomManager:      roomManager,
 		redisAuth:        redisAuth,
 		messageRepo:      messageRepo,
+		autoScaler:       autoScaler,
 	}
 }
 
@@ -58,6 +60,17 @@ func (h *EventHandler) SetShadowBanService(shadowBanService *safety.ShadowBanSer
 
 func (s *EventHandler) Setup(sarama.ConsumerGroupSession) error {
 	return nil
+}
+
+func (h *EventHandler) getBotCountFromRedis(ctx context.Context, roomID string) int {
+	// Implement logic to retrieve bot count from Redis
+	// This is a placeholder implementation
+	count, err := h.contextStore.GetBotCount(ctx, roomID)
+	if err != nil {
+		h.logger.Printf("Failed to get bot count from Redis: %v", err)
+		return 0
+	}
+	return int(count)
 }
 
 func (h *EventHandler) Cleanup(sarama.ConsumerGroupSession) error {
@@ -252,7 +265,17 @@ func (h *EventHandler) handleEvent(ctx context.Context, index int, total int, ev
 		return fmt.Errorf("persona selection failed: no eligible persona")
 	}
 	h.logger.Printf("│ │  🎭 PERSONA  %s (%s/%v)", persona.ID, persona.Profile.Tone, persona.Profile.Language)
-
+	botCfg, err := h.autoScaler.scalerSvc.GetBotConfig(ctx, roomID)
+	if err == nil {
+		// Dùng botCfg.MaxBots để quyết định có tiếp tục generate không
+		// Ví dụ: nếu đã có đủ bot trong phòng thì skip
+		activeBots := h.getBotCountFromRedis(ctx, roomID) // đếm từ Redis
+		if activeBots >= botCfg.MaxBots {
+			h.logger.Printf("│ │  ⏭️  SCALE    skip: bots=%d/%d state=%s",
+				activeBots, botCfg.MaxBots, botCfg.State)
+			return nil
+		}
+	}
 	draftMsg, err := h.messageGenerator.GenerateMessage(ctxBundle, persona)
 	if err != nil {
 		h.logger.Printf("│ │  ❌ GENERATE %v", err)
@@ -289,7 +312,7 @@ func (h *EventHandler) handleEvent(ctx context.Context, index int, total int, ev
 		IsBot:     true,
 		Persona:   persona.ID,
 		MatchID:   event.MatchID,
-		RoomID:    fmt.Sprintf("room-%s", event.MatchID),
+		RoomID:    roomID,
 		EventType: event.Type,
 		CreatedAt: time.Now(),
 	}
@@ -315,6 +338,7 @@ func (h *EventHandler) handleEvent(ctx context.Context, index int, total int, ev
 		if err := h.saveBotMessageToDB(msg); err != nil {
 			h.logger.Printf("│ │  ⚠️  DB SAVE  failed: %v", err)
 		}
+		_ = h.policyChecker.rateLimitService.IncrTotalMessages(ctx, msg.MatchID)
 	} else {
 		if h.mqttPublisher != nil {
 			mqttMsg := mqtt.ChatMessage{

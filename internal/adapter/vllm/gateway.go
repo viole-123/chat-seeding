@@ -366,7 +366,7 @@ func (g *VLLMGateway) AnalyzeSentiment(ctx context.Context, bundle model.Context
 }
 
 func tryParseFromVLLMResponse(raw string) (*model.DetectIntent, bool, error) {
-	var vr model.VLLMResponse
+	var vr model.VLLMRawResponse
 	if err := json.Unmarshal([]byte(raw), &vr); err != nil {
 		return nil, false, nil // not vLLM response format
 	}

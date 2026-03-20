@@ -23,6 +23,7 @@ type PrematchHandler struct {
 	roomManager      *RoomManager
 	messageRepo      interface{ SaveMessage(model.ChatMessage) error }
 	logger           *log.Logger
+	autoScaler       *AutoScalerLogic
 }
 
 func NewPrematchHandler(
@@ -35,6 +36,7 @@ func NewPrematchHandler(
 	roomManager *RoomManager,
 	messageRepo interface{ SaveMessage(model.ChatMessage) error },
 	logger *log.Logger,
+	autoScaler *AutoScalerLogic,
 ) *PrematchHandler {
 	return &PrematchHandler{
 		contextStore:     contextStore,
@@ -46,6 +48,7 @@ func NewPrematchHandler(
 		roomManager:      roomManager,
 		messageRepo:      messageRepo,
 		logger:           logger,
+		autoScaler:       autoScaler,
 	}
 }
 

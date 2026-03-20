@@ -1,53 +1,39 @@
 package seeding
 
-// AutoScaler recommends bot activity level based on active-user saturation.
-// Goal: warm up empty rooms, amplify mid-traffic, and back off in high traffic.
-type AutoScaler struct {
-	MinBots int
-	MaxBots int
+import (
+	"context"
+	"log"
+	"math/rand"
+	"uniscore-seeding-bot/internal/config"
+	"uniscore-seeding-bot/internal/domain/service"
+)
+
+type AutoScalerLogic struct {
+	scalerSvc service.AutoScalerService
 }
 
-func NewAutoScaler(minBots, maxBots int) *AutoScaler {
-	if minBots < 1 {
-		minBots = 1
+func NewAutoScalerLogic(autoscalerService service.AutoScalerService) *AutoScalerLogic {
+	return &AutoScalerLogic{
+		scalerSvc: autoscalerService,
 	}
-	if maxBots < minBots {
-		maxBots = minBots
-	}
-	return &AutoScaler{MinBots: minBots, MaxBots: maxBots}
 }
 
-// RecommendBots returns the target number of bot messages per minute window.
-func (a *AutoScaler) RecommendBots(activeUsers int) int {
-	if activeUsers <= 0 {
-		return clamp(a.MaxBots-1, a.MinBots, a.MaxBots)
+func (u *AutoScalerLogic) ShouldSpawnBot(ctx context.Context, roomID string, currentBotCount int) (bool, config.MaxBotsConfig, error) {
+	ctf, err := u.scalerSvc.GetBotConfig(ctx, roomID)
+	if err != nil {
+		log.Printf("⚠️  [AutoScale] GetBotConfig failed room=%s: %v — using fallback", roomID, err)
+		return currentBotCount < 2, config.MaxBotsConfig{MinBots: 1, MaxBots: 2}, nil
 	}
+	should := currentBotCount - ctf.MaxBots
+	log.Printf("🤖 [AutoScale] room=%s state=%s online→bots %d/%d spawn=%v",
+		roomID, ctf.State, currentBotCount, ctf.MaxBots, should)
+	return should < 0, ctf, nil
 
-	// 0-50 users: avoid cold start by being active.
-	if activeUsers <= 50 {
-		return clamp(a.MaxBots, a.MinBots, a.MaxBots)
-	}
-
-	// 51-200 users: keep high but slightly reduced bot pressure.
-	if activeUsers <= 200 {
-		return clamp((a.MaxBots*8)/10, a.MinBots, a.MaxBots)
-	}
-
-	// 201-500 users: taper down.
-	if activeUsers <= 500 {
-		return clamp((a.MaxBots*5)/10, a.MinBots, a.MaxBots)
-	}
-
-	// 500+ users: let real users dominate.
-	return a.MinBots
 }
 
-func clamp(v, lo, hi int) int {
-	if v < lo {
-		return lo
+func (u *AutoScalerLogic) RandomBotCount(cfg config.MaxBotsConfig) int {
+	if cfg.MaxBots <= cfg.MinBots {
+		return cfg.MinBots
 	}
-	if v > hi {
-		return hi
-	}
-	return v
+	return cfg.MinBots + rand.Intn(cfg.MaxBots-cfg.MinBots+1)
 }

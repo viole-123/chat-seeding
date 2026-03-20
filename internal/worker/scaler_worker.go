@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"time"
+	"uniscore-seeding-bot/internal/config"
 	"uniscore-seeding-bot/internal/domain/model"
 	"uniscore-seeding-bot/internal/domain/service"
 	"uniscore-seeding-bot/internal/usecase/seeding"
@@ -12,12 +13,12 @@ import (
 // ScalerWorker periodically recommends bot pressure per match.
 type ScalerWorker struct {
 	store      service.ContextStore
-	autoScaler *seeding.AutoScaler
+	autoScaler *seeding.AutoScalerLogic
 	interval   time.Duration
 	logger     *log.Logger
 }
 
-func NewScalerWorker(store service.ContextStore, autoScaler *seeding.AutoScaler, interval time.Duration, logger *log.Logger) *ScalerWorker {
+func NewScalerWorker(store service.ContextStore, autoScaler *seeding.AutoScalerLogic, interval time.Duration, logger *log.Logger) *ScalerWorker {
 	if interval <= 0 {
 		interval = 60 * time.Second
 	}
@@ -72,7 +73,12 @@ func (w *ScalerWorker) tick(ctx context.Context) {
 
 		activeUsers := countRecentHumanMessages(chatCtx.RawMessages)
 		totalActiveUsers += activeUsers
-		_ = w.autoScaler.RecommendBots(activeUsers)
+		// Use appropriate config value instead of activeUsers
+		_ = w.autoScaler.RandomBotCount(config.MaxBotsConfig{
+			MinBots: 1,
+			MaxBots: 3,
+			State:   config.ScalerStateLow,
+		})
 	}
 
 	if processed > 0 {

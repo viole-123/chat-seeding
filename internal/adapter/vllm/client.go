@@ -72,14 +72,14 @@ func (c *VLLMClient) Complete(ctx context.Context, req model.LLMRequest) (string
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		return "", fmt.Errorf("vLLM API error: status=%d body=%s", resp.StatusCode, string(bodyBytes))
 	}
-	var llmResp model.VLLMResponse
-	if err := json.NewDecoder(resp.Body).Decode(&llmResp); err != nil {
+	var raw model.VLLMRawResponse
+	if err := json.NewDecoder(resp.Body).Decode(&raw); err != nil {
 		return "", fmt.Errorf("Decode response failed :%w", err)
 	}
-	if len(llmResp.Choices) == 0 {
+	if len(raw.Choices) == 0 {
 		return "", fmt.Errorf("vLLM returned no choices")
 	}
 
-	return llmResp.Choices[0].Message.Content, nil
+	return raw.Choices[0].Message.Content, nil
 
 }

@@ -119,11 +119,18 @@ func Bootstrap() error {
 	log.Println("✅ Message generator initialized")
 	botReplySystem := seeding.NewBotReplySystem(intentDetector, llmGateway, personaSelector)
 	log.Println("✅ Bot reply system initialized")
-	autoScaler := seeding.NewAutoScaler(1, 6)
+	//auto
+	autoScalerImpl, err := redis.NewAutoScalerImpl(redisClient)
+	if err != nil {
+		return fmt.Errorf("failed to create auto scaler impl: %w", err)
+	}
+	autoScaler := seeding.NewAutoScalerLogic(autoScalerImpl)
+	log.Println("✅ AutoScaling inintialized)")
+
 	scalerWorker := worker.NewScalerWorker(contextStore, autoScaler, 60*time.Second, log.Default())
 	go scalerWorker.Start(ctx)
 	log.Println("✅ Scaler worker started (interval: 60s)")
-	gatewayURL := "ws://localhost:8080/ws" // TODO: Move to config
+	gatewayURL := "ws://localhost:8080/ws"
 	basePublisher := publisher.NewWebSocketPublisher(gatewayURL)
 	basePublisher.SetBroadcaster(handler.BroadcastMessage)
 	circuitBreaker := circuitbreaker.New()
@@ -144,7 +151,7 @@ func Bootstrap() error {
 		log.Printf("✅ [MQTT] publisher connected: %s", mqttBrokerURL)
 	}
 
-	eventHandler := seeding.NewEventHandler(*policyChecker, personaSelector, contextBuilder, contextStore, messageGenerator, qualityFilter, log.Default(), publisherService, mqttPublisher, roomManager, depupService, messageRepo)
+	eventHandler := seeding.NewEventHandler(*policyChecker, personaSelector, contextBuilder, contextStore, messageGenerator, qualityFilter, log.Default(), publisherService, mqttPublisher, roomManager, depupService, messageRepo, autoScaler)
 	eventHandler.SetShadowBanService(shadowBanService)
 	log.Println("✅ Event handler initialized")
 	prematchHandler := seeding.NewPrematchHandler(
@@ -157,6 +164,7 @@ func Bootstrap() error {
 		roomManager,
 		messageRepo,
 		log.Default(),
+		autoScaler,
 	)
 	log.Println("✅ Prematch handler initialized")
 
@@ -310,6 +318,34 @@ func Bootstrap() error {
 	router.GET("/matches/active", activeMatchesHandler.List)
 	router.GET("/messages/history", messageHistoryHandler.List)
 	router.GET("/metrics", gin.WrapF(metrics.Handler))
+	// Test api/chat/send
+	router.POST("/api/chat/send", func(c *gin.Context) {
+		var in handler.IncomingUserMessage
+		if err := c.ShouldBindJSON(&in); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
+
+		if in.MatchID == "" || in.Content == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "match_id and content are required"})
+			return
+		}
+		msg := mqtt.ChatMessage{
+			ID:        fmt.Sprintf("user-%d", time.Now().UnixNano()),
+			RoomID:    in.RoomID,
+			Content:   in.Content,
+			Timestamp: time.Now().Unix(),
+			IsBot:     false, // user thật
+		}
+		mqttPublisher.PublishBotMessage(ctx, in.RoomID, msg)
+		c.JSON(http.StatusAccepted, gin.H{
+			"ok":       true,
+			"message":  "message is being processed",
+			"match_id": in.MatchID,
+			"room_id":  in.RoomID,
+		})
+	})
+
 	log.Println("✅ WebSocket endpoint registered at /ws")
 	producerCfg := sarama.NewConfig()
 	producerCfg.Producer.Return.Successes = true
