@@ -216,7 +216,9 @@ func Bootstrap() error {
 		}
 		bundle.Chat.RawMessages = append([]model.ChatMessage{userMessage}, bundle.Chat.RawMessages...)
 
-		reply, err := botReplySystem.GenerateReply(context.Background(), model.UserMessage{Content: in.Content}, *bundle)
+		replyCtx, cancelReply := context.WithTimeout(context.Background(), 8*time.Second)
+		defer cancelReply()
+		reply, err := botReplySystem.GenerateReply(replyCtx, model.UserMessage{Content: in.Content}, *bundle)
 		if err != nil || reply == nil || reply.ReplyType == model.ReplyTypeSkip || reply.Text == "" {
 			return
 		}
