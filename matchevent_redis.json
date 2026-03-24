@@ -1,0 +1,123 @@
+{
+  "id": "dj2ryohl7xg0q1z",
+  "startTimestamp": 1773124200,
+  "startDt": "700121-12",
+  "tournament": {
+    "id": "z318q66hjkeqo9j",
+    "priority": 1000,
+    "name": "Nepal Premie League",
+    "slug": "nepal-premie-league",
+    "category": {
+      "name": "Nepal",
+      "slug": "nepal",
+      "id": "d23xmvkhwlqg8ny",
+      "flag": "nepal",
+      "logo": ""
+    },
+    "logo": "",
+    "group_num": 0,
+    "uniqueTournament": {
+      "id": "z318q66hjkeqo9j",
+      "name": "Nepal Premie League",
+      "slug": "nepal-premie-league",
+      "category": {
+        "name": "Nepal",
+        "slug": "nepal",
+        "id": "d23xmvkhwlqg8ny",
+        "flag": "nepal",
+        "logo": ""
+      }
+    }
+  },
+  "roundInfo": {
+    "round": 0
+  },
+  "slug": "manang-marshyangdi-club-chitlang",
+  "status": {
+    "code": 100,
+    "description": "ended",
+    "type": "finished"
+  },
+  "winnerCode": 1,
+  "homeTeam": {
+    "id": "3glrw7h1y9nqdyj",
+    "name": "Manang Marshyangdi Club",
+    "slug": "manang-marshyangdi-club",
+    "shortName": "",
+    "sport": {},
+    "userCount": -1,
+    "disabled": false,
+    "type": -1,
+    "country": {},
+    "subTeams": [],
+    "teamColors": {},
+    "logo": ""
+  },
+  "awayTeam": {
+    "id": "3glrw7hogkwqdyj",
+    "name": "Chitlang",
+    "slug": "chitlang",
+    "shortName": "Chitlang",
+    "sport": {},
+    "userCount": -1,
+    "disabled": false,
+    "type": -1,
+    "country": {},
+    "subTeams": [],
+    "teamColors": {},
+    "logo": ""
+  },
+  "homeScore": {
+    "current": 2,
+    "display": 2,
+    "period1": 0,
+    "period2": 2,
+    "corner": 3,
+    "yellow_card": 0,
+    "red_card": 0,
+    "overTime_score": 0,
+    "penalty_score": 0,
+    "overTime_score_only": -1,
+    "ft_score_only": 2
+  },
+  "awayScore": {
+    "current": 0,
+    "display": 0,
+    "period1": 0,
+    "period2": 0,
+    "corner": 3,
+    "yellow_card": 0,
+    "red_card": 0,
+    "overTime_score": 0,
+    "penalty_score": 0,
+    "overTime_score_only": 0,
+    "ft_score_only": 0
+  },
+  "time": {},
+  "referee": {},
+  "venue": {},
+  "lineup": 1,
+  "stage_id": "",
+  "season": {},
+  "agg_score": {
+    "home_score": -1,
+    "away_score": -1,
+    "related_id": ""
+  },
+  "has_standing": false,
+  "has_player_stats": false,
+  "has_bracket": false,
+  "quick_stats": {
+    "shotOnTarget": [
+      6,
+      2
+    ]
+  },
+  "environment": {
+    "weather": 1,
+    "pressure": "767mmHg",
+    "temperature": "23°C",
+    "wind": "3.1m/s",
+    "humidity": "58%"
+  }
+}
