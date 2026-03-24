@@ -13,7 +13,7 @@ Uniscore Seeding Bot là một hệ thống tự động tạo và gửi tin nh�
 - Tích hợp với Kafka (nguồn event), Redis (context/state), PostgreSQL (log), LLM (fallback generation)
 - Hỗ trợ xuất bản qua WebSocket hoặc MQTT broker
 
-## Architecture
+## Architecture 1
 
 ```mermaid
 graph TD
